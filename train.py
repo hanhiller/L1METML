@@ -65,18 +65,18 @@ def trainFrom_Root(args):
     for file in os.listdir(inputPath):
         if '.root' in file:
             filesList.append(f'{inputPath}{file}')
-    valid_nfiles = int(.1*len(filesList))
+    '''valid_nfiles = int(.1*len(filesList))
     if valid_nfiles == 0:
         valid_nfiles = 1
     train_nfiles = len(filesList)- 2*valid_nfiles
     test_nfiles = valid_nfiles
     train_filesList = filesList[0:train_nfiles]
     valid_filesList = filesList[train_nfiles: train_nfiles+valid_nfiles]
-    test_filesList = filesList[train_nfiles+valid_nfiles:test_nfiles+train_nfiles+valid_nfiles]
+    test_filesList = filesList[train_nfiles+valid_nfiles:test_nfiles+train_nfiles+valid_nfiles]'''
 
-    trainGenerator = DataGenerator(list_files=train_filesList,batch_size=batch_size)
-    validGenerator = DataGenerator(list_files=valid_filesList,batch_size=batch_size)
-    testGenerator = DataGenerator(list_files=test_filesList,batch_size=batch_size)
+    trainGenerator = DataGenerator(list_files=filesList, dataGeneratorType='train', batch_size=batch_size)
+    validGenerator = DataGenerator(list_files=filesList, dataGeneratorType='valid', batch_size=batch_size)
+    testGenerator = DataGenerator(list_files=filesList, dataGeneratorType='test', batch_size=batch_size)
     Xr_train, Yr_train = trainGenerator[0] # this apparenly calls all the methods, so that we can get the correct dimensions (train_generator.emb_input_dim)
     # Load training model
 
@@ -228,19 +228,9 @@ def trainFrom_h5(args):
     Yr = Y
     Xr = [Xi] + Xc
 
-    # remove events True pT < 50 GeV
     Yr_pt = convertXY2PtPhi(Yr)
-    #mask1 = (Yr_pt[:,0] > 50.)
-    #Yr = Yr[mask1]
-    #Xr = [x[mask1] for x in Xr]
-
-    # check the number of events higher than 300 GeV
-    mask2 = (Yr_pt[:,0] > 300)
-    Yr_pt = Yr_pt[mask2]
-    #print("# of events higher than 300 GeV : {}".format(Yr_pt.shape[0]))
 
     indices = np.array([i for i in range(len(Yr))])
-    #print(indices)
     indices_train, indices_test = train_test_split(indices, test_size=0.2, random_state= 7)
     indices_train, indices_valid = train_test_split(indices_train, test_size=0.2, random_state=7)
 
