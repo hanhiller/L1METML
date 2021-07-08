@@ -14,6 +14,7 @@ class DataGenerator(tensorflow.keras.utils.Sequence):
         self.n_features_pf = 6
         self.n_features_pf_cat = 2
         self.normFac = 1.
+        self.dataGeneratorType = dataGeneratorType
         self.batch_size = batch_size
         self.list_files = list_files
         self.n_dim = n_dim
