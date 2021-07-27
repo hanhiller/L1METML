@@ -282,7 +282,7 @@ def trainFrom_h5(args):
                               epochs=epochs,
                               batch_size = batch_size,
                               verbose=verbose,
-                              validation_data=(Xr_valid, Yr_valid), callbacks=get_callbacks(path_out, len(Yr_train), batch_size)))
+                              validation_data=(Xr_valid, Yr_valid), callbacks=get_callbacks(path_out, len(Yr_train), batch_size))
 
     end_time = time.time() # check end time
     
