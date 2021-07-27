@@ -270,7 +270,8 @@ def trainFrom_h5(args):
         # Get the optimal hyperparameters
         best_hps=tuner.get_best_hyperparameters(num_trials=1)[0]
 
-        print(f'The hyperparameter search is complete. The optimal number of units in the first densely-connected layer is {best_hps.get('units')} and the optimal learning rate for the optimizer is {best_hps.get('learning_rate')}')
+        print(best_hps.get('units'), 'optimal units')
+        print(best_hps.get('learning_rate'), 'optimal learning rate')
         
         
         # Build the model with the optimal hyperparameters and train it on the data for 50 epochs
