@@ -265,7 +265,7 @@ def trainFrom_h5(args):
         callbacks=get_callbacks(path_out, len(Yr_train), batch_size)
         callbacks[0]=stop_early
         
-        tuner.search(Xr_train,Yr_train, epochs=epochs, validation_split=0.2, callbacks=callbacks)
+        tuner.search(Xr_train, Yr_train, epochs=epochs, validation_data=(Xr_valid, Yr_valid), callbacks=callbacks)
 
         # Get the optimal hyperparameters
         best_hps=tuner.get_best_hyperparameters(num_trials=1)[0]
@@ -281,7 +281,7 @@ def trainFrom_h5(args):
                               Yr_train,
                               epochs=epochs,
                               batch_size = batch_size,
-                              verbose=verbose
+                              verbose=verbose,
                               validation_data=(Xr_valid, Yr_valid), callbacks=get_callbacks(path_out, len(Yr_train), batch_size)))
 
     end_time = time.time() # check end time
