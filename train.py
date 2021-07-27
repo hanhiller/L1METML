@@ -262,7 +262,7 @@ def trainFrom_h5(args):
         tuner = kt.Hyperband(model_builder,objective='val_accuracy', max_epochs=epochs, factor=3, directory=path_out, project_name='scan_1stDenseLayer_units')
         
         stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
-        callbacks=get_callbacks(path_out, len(Yr_train), batch_size))
+        callbacks=get_callbacks(path_out, len(Yr_train), batch_size)
         callbacks[0]=stop_early
         
         tuner.search(Xr_train,Yr_train, epochs=epochs, validation_split=0.2, callbacks=callbacks)
