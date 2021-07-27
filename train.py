@@ -74,6 +74,7 @@ def test(Yr_test, predict_test, PUPPI_pt, path_out):
 
 # create a model with scannable hyperparameters
 def model_builder(hp):
+    print(emb_out_dim)
     hp_units = hp.Int('units', min_value=8, max_value=128, step=4)
   
     keras_model = dense_embedding(n_features = n_features_pf, emb_out_dim=2, n_features_cat=n_features_pf_cat, n_dense_layers=2, activation='tanh',embedding_input_dim = trainGenerator.emb_input_dim, number_of_pupcandis = maxNPF, t_mode = t_mode, with_bias=False, units=[hp_units,32])
@@ -257,7 +258,7 @@ def trainFrom_h5(args):
                               callbacks=get_callbacks(path_out, len(Yr_train), batch_size))
         
     else:
-    
+        print(emb_out_dim)
         verbose=1
         tuner = kt.Hyperband(model_builder,objective='val_accuracy', max_epochs=epochs, factor=3, directory=path_out, project_name='scan_1stDenseLayer_units')
         
