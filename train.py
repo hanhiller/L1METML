@@ -3,7 +3,7 @@ import tensorflow
 import tensorflow.keras.backend as K
 from tensorflow.keras import optimizers, initializers
 from tensorflow.keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, EarlyStopping, CSVLogger
-from tensorflow.keras.utils import ploself.t_model
+from tensorflow.keras.utils import plot_model
 from tensorflow.keras.models import Model
 from sklearn.model_selection import train_test_split
 import keras_tuner as kt
@@ -37,7 +37,7 @@ class L1MET_training(args):
         self.n_features_pf = 6
         self.n_features_pf_cat = 2
         self.normFac = 1.
-        self.self.epochs = args.epochs
+        self.epochs = args.epochs
         self.batch_size = 1024
         self.preprocessed = True
         self.t_mode = args.mode
@@ -74,7 +74,7 @@ class L1MET_training(args):
         extract_result(predict_test, Yr_test, self.path_out, 'TTbar', 'ML')
         extract_result(PUPPI_pt, Yr_test, self.path_out, 'TTbar', 'PU')
         
-        MakePlots(Yr_test, predict_test, PUPPI_pt, self.path_out = self.path_out)
+        MakePlots(Yr_test, predict_test, PUPPI_pt, path_out = self.path_out)
         
         Yr_test = convertXY2PtPhi(Yr_test)
         predict_test = convertXY2PtPhi(predict_test)
@@ -91,7 +91,15 @@ class L1MET_training(args):
         print(emb_out_dim)
         hp_units = hp.Int('units', min_value=8, max_value=128, step=4)
       
-        keras_model = dense_embedding(n_features = self.n_features_pf, emb_out_dim=2, n_features_cat=self.n_features_pf_cat, n_dense_layers=2, activation='tanh',embedding_input_dim = trainGenerator.emb_input_dim, number_of_pupcandis = self.maxNPF, self.t_mode = self.t_mode, with_bias=False, units=[hp_units,32])
+        keras_model = dense_embedding(n_features = self.n_features_pf,
+                                    emb_out_dim=2,
+                                    n_features_cat=self.n_features_pf_cat,
+                                    n_dense_layers=2, activation='tanh',
+                                    embedding_input_dim = trainGenerator.emb_input_dim,
+                                    number_of_pupcandis = self.maxNPF,
+                                    t_mode = self.t_mode,
+                                    with_bias=False,
+                                    units=[hp_units,32])
         
         hp_learning_rate = hp.Choice('learning_rate', values=[1, .1, .01,])
         
@@ -115,9 +123,9 @@ class L1MET_training(args):
         valid_filesList = filesList[train_nfiles: train_nfiles+valid_nfiles]
         test_filesList = filesList[train_nfiles+valid_nfiles:test_nfiles+train_nfiles+valid_nfiles]
 
-        trainGenerator = DataGenerator(list_files=train_filesList,self.batch_size=self.batch_size)
-        validGenerator = DataGenerator(list_files=valid_filesList,self.batch_size=self.batch_size)
-        testGenerator = DataGenerator(list_files=test_filesList,self.batch_size=self.batch_size)
+        trainGenerator = DataGenerator(list_files=train_filesList, batch_size=self.batch_size)
+        validGenerator = DataGenerator(list_files=valid_filesList,batch_size=self.batch_size)
+        testGenerator = DataGenerator(list_files=test_filesList, batch_size=self.batch_size)
         Xr_train, Yr_train = trainGenerator[0] # this apparenly calls all the attributes, so that we can get the correct input dimensions (train_generator.emb_input_dim)
 
         # Load training model
@@ -128,9 +136,30 @@ class L1MET_training(args):
             activation_total_bits = 16
             activation_int_bits = 6
             
-            keras_model = dense_embedding_self.quantized(n_features = self.n_features_pf, emb_out_dim=2, n_features_cat=self.n_features_pf_cat, n_dense_layers=2, activation_quantizer='self.quantized_relu',embedding_input_dim = trainGenerator.emb_input_dim, number_of_pupcandis = self.maxNPF, self.t_mode = self.t_mode, with_bias=False, logit_quantizer = 'self.quantized_bits', logit_total_bits=logit_total_bits, logit_int_bits=logit_int_bits, activation_total_bits=activation_total_bits, activation_int_bits=activation_int_bits, alpha='auto', use_stochastic_rounding=False)
+            keras_model = dense_embedding_quantized(n_features = self.n_features_pf,
+                                                    emb_out_dim=2,
+                                                    n_features_cat=self.n_features_pf_cat,
+                                                    n_dense_layers=2,
+                                                    activation_quantizer='quantized_relu',
+                                                    embedding_input_dim = trainGenerator.emb_input_dim,
+                                                    number_of_pupcandis = self.maxNPF,
+                                                    t_mode = self.t_mode,
+                                                    with_bias=False, logit_quantizer = 'quantized_bits',
+                                                    logit_total_bits=logit_total_bits,
+                                                    logit_int_bits=logit_int_bits,
+                                                    activation_total_bits=activation_total_bits,
+                                                    activation_int_bits=activation_int_bits,
+                                                    alpha='auto', use_stochastic_rounding=False)
         else:
-            keras_model = dense_embedding(n_features = self.n_features_pf, emb_out_dim=2, n_features_cat=self.n_features_pf_cat, n_dense_layers=2, activation='tanh',embedding_input_dim = trainGenerator.emb_input_dim, number_of_pupcandis = self.maxNPF, self.t_mode = self.t_mode, with_bias=False)
+            keras_model = dense_embedding(n_features = self.n_features_pf,
+                                            emb_out_dim=2,
+                                            n_features_cat=self.n_features_pf_cat,
+                                            n_dense_layers=2,
+                                            activation='tanh',
+                                            embedding_input_dim = trainGenerator.emb_input_dim,
+                                            number_of_pupcandis = self.maxNPF,
+                                            t_mode = self.t_mode,
+                                            with_bias=False)
 
         # Check which model will be used (0 for L1MET Model, 1 for DeepMET Model)
         if self.t_mode == 0:
@@ -149,7 +178,7 @@ class L1MET_training(args):
 
         start_time = time.time() # check start time
         history = keras_model.fit(trainGenerator,
-                                  self.epochs=self.epochs,
+                                  epochs=self.epochs,
                                   verbose=verbose,  # switch to 1 for more verbosity
                                   validation_data=validGenerator,
                                   callbacks=get_callbacks(self.path_out, len(trainGenerator), self.batch_size),
@@ -167,7 +196,7 @@ class L1MET_training(args):
         PUPPI_pt = self.normFac * np.concatenate(all_PUPPI_pt)
         Yr_test = self.normFac * np.concatenate(Yr_test)
         
-        test(Yr_test, predict_test, PUPPI_pt, self.path_out)
+        test(Yr_test, predict_test, PUPPI_pt, path_out)
 
         fi = open("{}time.txt".format(self.path_out), 'w')
 
@@ -222,7 +251,20 @@ class L1MET_training(args):
             activation_total_bits = 16
             activation_int_bits = 6
             
-            keras_model = dense_embedding_self.quantized(n_features = self.n_features_pf, emb_out_dim=2, n_features_cat=self.n_features_pf_cat, n_dense_layers=2, activation_quantizer='self.quantized_relu',embedding_input_dim = emb_input_dim, number_of_pupcandis = self.maxNPF, self.t_mode = self.t_mode, with_bias=False, logit_quantizer = 'self.quantized_bits', logit_total_bits=logit_total_bits, logit_int_bits=logit_int_bits, activation_total_bits=activation_total_bits, activation_int_bits=activation_int_bits, alpha=1, use_stochastic_rounding=False)
+            keras_model = dense_embedding_.quantized(n_features = self.n_features_pf,
+                                                        emb_out_dim=2,
+                                                        n_features_cat=self.n_features_pf_cat,
+                                                        n_dense_layers=2,
+                                                        activation_quantizer='quantized_relu',
+                                                        embedding_input_dim = emb_input_dim,
+                                                        number_of_pupcandis = self.maxNPF,
+                                                        t_mode = self.t_mode, with_bias=False,
+                                                        logit_quantizer = 'quantized_bits',
+                                                        logit_total_bits=logit_total_bits,
+                                                        logit_int_bits=logit_int_bits,
+                                                        activation_total_bits=activation_total_bits,
+                                                        activation_int_bits=activation_int_bits,
+                                                        alpha=1, use_stochastic_rounding=False)
             
             # Check which model will be used (0 for L1MET Model, 1 for DeepMET Model)
             if self.t_mode == 0:
@@ -241,8 +283,8 @@ class L1MET_training(args):
                 start_time = time.time() # check start time
                 history = keras_model.fit(Xr_train,
                                   Yr_train,
-                                  self.epochs=self.epochs,
-                                  self.batch_size = self.batch_size,
+                                  epochs=self.epochs,
+                                  batch_size = self.batch_size,
                                   verbose=verbose,  # switch to 1 for more verbosity
                                   validation_data=(Xr_valid, Yr_valid),
                                   callbacks=get_callbacks(self.path_out, len(Yr_train), self.batch_size))
@@ -250,13 +292,13 @@ class L1MET_training(args):
         else:
             print(emb_out_dim)
             verbose=1
-            tuner = kt.Hyperband(model_builder,objective='val_accuracy', max_self.epochs=self.epochs, factor=3, directory=self.path_out, project_name='scan_1stDenseLayer_units')
+            tuner = kt.Hyperband(model_builder,objective='val_accuracy', max_epochs=self.epochs, factor=3, directory=self.path_out, project_name='scan_1stDenseLayer_units')
             
             stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
             callbacks=get_callbacks(self.path_out, len(Yr_train), self.batch_size)
             callbacks[0]=stop_early
             
-            tuner.search(Xr_train, Yr_train, self.epochs=self.epochs, validation_data=(Xr_valid, Yr_valid), callbacks=callbacks)
+            tuner.search(Xr_train, Yr_train, epochs=self.epochs, validation_data=(Xr_valid, Yr_valid), callbacks=callbacks)
 
             # Get the optimal hyperparameters
             best_hps=tuner.get_best_hyperparameters(num_trials=1)[0]
@@ -265,13 +307,13 @@ class L1MET_training(args):
             print(best_hps.get('learning_rate'), 'optimal learning rate')
             
             
-            # Build the model with the optimal hyperparameters and train it on the data for 50 self.epochs
+            # Build the model with the optimal hyperparameters and train it on the data for 100 epochs
             start_time = time.time()
             model = tuner.hypermodel.build(best_hps)
             history = model.fit(Xr_train,
                                   Yr_train,
-                                  self.epochs=self.epochs,
-                                  self.batch_size = self.batch_size,
+                                  epochs=self.epochs,
+                                  batch_size = self.batch_size,
                                   verbose=verbose,
                                   validation_data=(Xr_valid, Yr_valid), callbacks=get_callbacks(self.path_out, len(Yr_train), self.batch_size))
 
@@ -299,8 +341,8 @@ def main():
     parser.add_argument('--input', action='store', type=str, required=True, help='designate input file path')
     parser.add_argument('--output', action='store', type=str, required=True, help='designate output file path')
     parser.add_argument('--mode', action='store', type=int, required=True, choices=[0, 1], help='0 for L1MET, 1 for DeepMET')
-    parser.add_argument('--self.epochs', action='store', type=int, required=False, default=100)
-    parser.add_argument('--self.quantized', action='store_true', required=False, help='flag for self.quantized model, empty for normal model')
+    parser.add_argument('--epochs', action='store', type=int, required=False, default=100)
+    parser.add_argument('--quantized', action='store_true', required=False, help='flag for quantized model, empty for normal model')
     
     args = parser.parse_args()
     dataType = args.dataType
