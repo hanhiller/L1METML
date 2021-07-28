@@ -88,7 +88,10 @@ class training():
 
     # create a model with scannable hyperparameters
     def model_builder(self, hp):
-        hp_units = hp.Int('units', min_value=8, max_value=24, step=4)
+    
+        units_space = [[8,16],[32,32], [32,64], [64,32], [16,8], [4, 64]]
+        
+        hp_units = hp.Choice('units', values=units_space)
       
         self.keras_model = dense_embedding(n_features = self.n_features_pf,
                                     emb_out_dim=2,
@@ -98,7 +101,7 @@ class training():
                                     number_of_pupcandis = self.maxNPF,
                                     t_mode = self.t_mode,
                                     with_bias=False,
-                                    units=[hp_units,32])
+                                    units=hp_units)
         
         hp_learning_rate = hp.Choice('learning_rate', values=[1.0, .1, .01,])
         
@@ -291,7 +294,7 @@ class training():
             
         else:
             verbose=1
-            tuner = kt.Hyperband(self.model_builder,objective='val_loss', max_epochs=self.epochs, factor=3, directory='./', project_name='scan_1stDenseLayer_units')
+            tuner = kt.Hyperband(self.model_builder,objective='val_loss', max_epochs=self.epochs, factor=3, directory='./', project_name='scan_units')
             
             callbacks=self.get_callbacks(self.path_out, len(Yr_train), self.batch_size)
             
@@ -304,7 +307,7 @@ class training():
             print(best_hps.get('learning_rate'), 'optimal learning rate')
             
             
-            # Build the model with the optimal hyperparameters and train it on the data for 100 epochs
+            '''# Build the model with the optimal hyperparameters and train it on the data for 100 epochs
             start_time = time.time()
             self.keras_model = tuner.hypermodel.build(best_hps)
             history = self.keras_model.fit(Xr_train,
@@ -327,7 +330,7 @@ class training():
         fi.write("Working Time (s) : {}".format(end_time - start_time))
         fi.write("Working Time (m) : {}".format((end_time - start_time)/60.))
 
-        fi.close()
+        fi.close()'''
 
 def main():
     time_path = time.strftime('%Y-%m-%d', time.localtime(time.time()))
