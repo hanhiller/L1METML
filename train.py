@@ -94,7 +94,7 @@ class training():
                                     emb_out_dim=2,
                                     n_features_cat=self.n_features_pf_cat,
                                     n_dense_layers=2, activation='tanh',
-                                    embedding_input_dim = trainGenerator.emb_input_dim,
+                                    embedding_input_dim = self.emb_input_dim,
                                     number_of_pupcandis = self.maxNPF,
                                     t_mode = self.t_mode,
                                     with_bias=False,
@@ -126,6 +126,7 @@ class training():
         validGenerator = DataGenerator(list_files=valid_filesList,batch_size=self.batch_size)
         testGenerator = DataGenerator(list_files=test_filesList, batch_size=self.batch_size)
         Xr_train, Yr_train = trainGenerator[0] # this apparenly calls all the attributes, so that we can get the correct input dimensions (train_generator.emb_input_dim)
+        self.emb_input_dim = trainGenerator.emb_input_dim
 
         # Load training model
         if self.quantized == True:
@@ -140,7 +141,7 @@ class training():
                                                     n_features_cat=self.n_features_pf_cat,
                                                     n_dense_layers=2,
                                                     activation_quantizer='quantized_relu',
-                                                    embedding_input_dim = trainGenerator.emb_input_dim,
+                                                    embedding_input_dim = self.emb_input_dim,
                                                     number_of_pupcandis = self.maxNPF,
                                                     t_mode = self.t_mode,
                                                     with_bias=False, logit_quantizer = 'quantized_bits',
@@ -155,7 +156,7 @@ class training():
                                             n_features_cat=self.n_features_pf_cat,
                                             n_dense_layers=2,
                                             activation='tanh',
-                                            embedding_input_dim = trainGenerator.emb_input_dim,
+                                            embedding_input_dim = self.emb_input_dim,
                                             number_of_pupcandis = self.maxNPF,
                                             t_mode = self.t_mode,
                                             with_bias=False)
@@ -223,7 +224,7 @@ class training():
         Xi, Xp, Xc1, Xc2 = preProcessing(Xorg, self.normFac)
         Xc = [Xc1, Xc2]
         
-        emb_input_dim = {
+        self.emb_input_dim = {
             i:int(np.max(Xc[i][0:1000])) + 1 for i in range(self.n_features_pf_cat)
         }
 
@@ -255,7 +256,7 @@ class training():
                                                         n_features_cat=self.n_features_pf_cat,
                                                         n_dense_layers=2,
                                                         activation_quantizer='quantized_relu',
-                                                        embedding_input_dim = emb_input_dim,
+                                                        embedding_input_dim = self.emb_input_dim,
                                                         number_of_pupcandis = self.maxNPF,
                                                         t_mode = self.t_mode, with_bias=False,
                                                         logit_quantizer = 'quantized_bits',
