@@ -88,7 +88,6 @@ class training():
 
     # create a model with scannable hyperparameters
     def model_builder(self, hp):
-        print(emb_out_dim)
         hp_units = hp.Int('units', min_value=8, max_value=128, step=4)
       
         keras_model = dense_embedding(n_features = self.n_features_pf,
