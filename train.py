@@ -31,7 +31,7 @@ from utils import *
 from loss import custom_loss
 from DataGenerator import DataGenerator
 
-class L1MET_training():
+class training():
     def __init__(self, args):
         self.maxNPF = 100
         self.n_features_pf = 6
@@ -347,7 +347,7 @@ def main():
     args = parser.parse_args()
     dataType = args.dataType
 
-    L1MET_training = L1MET_training(args)
+    training = training(args)
     
     os.makedirs(args.output,exist_ok=True)
 
