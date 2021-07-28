@@ -89,8 +89,8 @@ class training():
     # create a model with scannable hyperparameters
     def model_builder(self, hp):
     
-        hp_units_layer1 = hp.Int('units', min_value=4, max_value=64, step=4)
-        hp_units_layer2 = hp.Int('units', min_value=4, max_value=64, step=4)
+        hp_units_layer1 = hp.Int('units_layer1', min_value=4, max_value=64, step=4)
+        hp_units_layer2 = hp.Int('units_layer2', min_value=4, max_value=64, step=4)
       
         self.keras_model = dense_embedding(n_features = self.n_features_pf,
                                     emb_out_dim=2,
@@ -302,7 +302,7 @@ class training():
             # Get the optimal hyperparameters
             best_hps=tuner.get_best_hyperparameters(num_trials=20)[0]
 
-            print(best_hps.get('units'), 'optimal units')
+            print([best_hps.get('units_layer1') best_hps.get('units_layer2')], 'optimal units')
             print(best_hps.get('learning_rate'), 'optimal learning rate')
             
             
