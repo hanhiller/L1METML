@@ -31,8 +31,8 @@ from utils import *
 from loss import custom_loss
 from DataGenerator import DataGenerator
 
-class L1MET_training(args):
-    def __init__(self):
+class L1MET_training():
+    def __init__(self, args):
         self.maxNPF = 100
         self.n_features_pf = 6
         self.n_features_pf_cat = 2
