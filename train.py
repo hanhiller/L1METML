@@ -89,9 +89,8 @@ class training():
     # create a model with scannable hyperparameters
     def model_builder(self, hp):
     
-        units_space = [[8,16],[32,32], [32,64], [64,32], [16,8], [4, 64]]
-        
-        hp_units = hp.Choice('units', values=units_space)
+        hp_units_layer1 = hp.Int('units', min_value=4, max_value=64, step=4)
+        hp_units_layer2 = hp.Int('units', min_value=4, max_value=64, step=4)
       
         self.keras_model = dense_embedding(n_features = self.n_features_pf,
                                     emb_out_dim=2,
@@ -101,7 +100,7 @@ class training():
                                     number_of_pupcandis = self.maxNPF,
                                     t_mode = self.t_mode,
                                     with_bias=False,
-                                    units=hp_units)
+                                    units=[hp_units_layer1,hp_units_layer2])
         
         hp_learning_rate = hp.Choice('learning_rate', values=[1.0, .1, .01,])
         
