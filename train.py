@@ -291,7 +291,7 @@ class training():
             
         else:
             verbose=1
-            tuner = kt.Hyperband(self.model_builder,objective='val_loss', max_epochs=self.epochs, factor=3, directory=self.path_out, project_name='scan_1stDenseLayer_units')
+            tuner = kt.Hyperband(self.model_builder,objective='val_loss', max_epochs=self.epochs, factor=3, directory='./' project_name='scan_1stDenseLayer_units')
             
             callbacks=self.get_callbacks(self.path_out, len(Yr_train), self.batch_size)
             
