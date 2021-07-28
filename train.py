@@ -347,7 +347,7 @@ def main():
     args = parser.parse_args()
     dataType = args.dataType
 
-    training = training(args)
+    L1MET_training = training(args)
     
     os.makedirs(args.output,exist_ok=True)
 
