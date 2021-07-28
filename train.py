@@ -74,7 +74,7 @@ class training():
         extract_result(predict_test, Yr_test, self.path_out, 'TTbar', 'ML')
         extract_result(PUPPI_pt, Yr_test, self.path_out, 'TTbar', 'PU')
         
-        MakePlots(Yr_test, predict_test, PUPPI_pt, path_out = self.path_out)
+        self.MakePlots(Yr_test, predict_test, PUPPI_pt, path_out = self.path_out)
         
         Yr_test = convertXY2PtPhi(Yr_test)
         predict_test = convertXY2PtPhi(predict_test)
@@ -90,7 +90,7 @@ class training():
     def model_builder(self, hp):
         hp_units = hp.Int('units', min_value=8, max_value=128, step=4)
       
-        keras_model = dense_embedding(n_features = self.n_features_pf,
+        self.keras_model = dense_embedding(n_features = self.n_features_pf,
                                     emb_out_dim=2,
                                     n_features_cat=self.n_features_pf_cat,
                                     n_dense_layers=2, activation='tanh',
@@ -103,10 +103,10 @@ class training():
         hp_learning_rate = hp.Choice('learning_rate', values=[1, .1, .01,])
         
         optimizer = optimizers.Adam(lr=hp_learning_rate, clipnorm=1.)
-        keras_model.compile(loss=custom_loss, optimizer=optimizer,
+        self.keras_model.compile(loss=custom_loss, optimizer=optimizer,
                                 metrics=['mean_absolute_error', 'mean_squared_error'])
                 
-        return keras_model
+        return self.keras_model
 
     def trainFrom_Root(self):
         # general setup
@@ -135,7 +135,7 @@ class training():
             activation_total_bits = 16
             activation_int_bits = 6
             
-            keras_model = dense_embedding_quantized(n_features = self.n_features_pf,
+            self.keras_model = dense_embedding_quantized(n_features = self.n_features_pf,
                                                     emb_out_dim=2,
                                                     n_features_cat=self.n_features_pf_cat,
                                                     n_dense_layers=2,
@@ -150,7 +150,7 @@ class training():
                                                     activation_int_bits=activation_int_bits,
                                                     alpha='auto', use_stochastic_rounding=False)
         else:
-            keras_model = dense_embedding(n_features = self.n_features_pf,
+            self.keras_model = dense_embedding(n_features = self.n_features_pf,
                                             emb_out_dim=2,
                                             n_features_cat=self.n_features_pf_cat,
                                             n_dense_layers=2,
@@ -162,29 +162,29 @@ class training():
 
         # Check which model will be used (0 for L1MET Model, 1 for DeepMET Model)
         if self.t_mode == 0:
-            keras_model.compile(optimizer='adam', loss=custom_loss, metrics=['mean_absolute_error', 'mean_squared_error'])
+            self.keras_model.compile(optimizer='adam', loss=custom_loss, metrics=['mean_absolute_error', 'mean_squared_error'])
             verbose = 1
         elif self.t_mode == 1:
             optimizer = optimizers.Adam(lr=1., clipnorm=1.)
-            keras_model.compile(loss=custom_loss, optimizer=optimizer,
+            self.keras_model.compile(loss=custom_loss, optimizer=optimizer,
                                 metrics=['mean_absolute_error', 'mean_squared_error'])
             verbose = 1
 
         # Set model config
         # Run training
 
-        print(keras_model.summary())
+        print(self.keras_model.summary())
 
         start_time = time.time() # check start time
-        history = keras_model.fit(trainGenerator,
+        history = self.keras_model.fit(trainGenerator,
                                   epochs=self.epochs,
                                   verbose=verbose,  # switch to 1 for more verbosity
                                   validation_data=validGenerator,
-                                  callbacks=get_callbacks(self.path_out, len(trainGenerator), self.batch_size),
+                                  callbacks=self.get_callbacks(self.path_out, len(trainGenerator), self.batch_size),
                               )
         end_time = time.time() # check end time
         
-        predict_test = keras_model.predict(testGenerator) * self.normFac
+        predict_test = self.keras_model.predict(testGenerator) * self.normFac
         all_PUPPI_pt = []
         Yr_test = []
         for (Xr, Yr) in tqdm.tqdm(testGenerator):
@@ -195,7 +195,7 @@ class training():
         PUPPI_pt = self.normFac * np.concatenate(all_PUPPI_pt)
         Yr_test = self.normFac * np.concatenate(Yr_test)
         
-        test(Yr_test, predict_test, PUPPI_pt, path_out)
+        self.test(Yr_test, predict_test, PUPPI_pt, path_out)
 
         fi = open("{}time.txt".format(self.path_out), 'w')
 
@@ -250,7 +250,7 @@ class training():
             activation_total_bits = 16
             activation_int_bits = 6
             
-            keras_model = dense_embedding_.quantized(n_features = self.n_features_pf,
+            self.keras_model = dense_embedding_.quantized(n_features = self.n_features_pf,
                                                         emb_out_dim=2,
                                                         n_features_cat=self.n_features_pf_cat,
                                                         n_dense_layers=2,
@@ -267,33 +267,33 @@ class training():
             
             # Check which model will be used (0 for L1MET Model, 1 for DeepMET Model)
             if self.t_mode == 0:
-                keras_model.compile(optimizer='adam', loss=custom_loss, metrics=['mean_absolute_error', 'mean_squared_error'])
+                self.keras_model.compile(optimizer='adam', loss=custom_loss, metrics=['mean_absolute_error', 'mean_squared_error'])
                 verbose = 1
             elif self.t_mode == 1:
                 #model configuration
                 optimizer = optimizers.Adam(lr=1., clipnorm=1.)
-                keras_model.compile(loss=custom_loss, optimizer=optimizer,
+                self.keras_model.compile(loss=custom_loss, optimizer=optimizer,
                                 metrics=['mean_absolute_error', 'mean_squared_error'])
                 verbose = 1
                 
                 # Run training
-                print(keras_model.summary())
+                print(self.keras_model.summary())
 
                 start_time = time.time() # check start time
-                history = keras_model.fit(Xr_train,
+                history = self.keras_model.fit(Xr_train,
                                   Yr_train,
                                   epochs=self.epochs,
                                   batch_size = self.batch_size,
                                   verbose=verbose,  # switch to 1 for more verbosity
                                   validation_data=(Xr_valid, Yr_valid),
-                                  callbacks=get_callbacks(self.path_out, len(Yr_train), self.batch_size))
+                                  callbacks=self.get_callbacks(self.path_out, len(Yr_train), self.batch_size))
             
         else:
             verbose=1
-            tuner = kt.Hyperband(model_builder,objective='val_accuracy', max_epochs=self.epochs, factor=3, directory=self.path_out, project_name='scan_1stDenseLayer_units')
+            tuner = kt.Hyperband(self.model_builder,objective='val_accuracy', max_epochs=self.epochs, factor=3, directory=self.path_out, project_name='scan_1stDenseLayer_units')
             
             stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
-            callbacks=get_callbacks(self.path_out, len(Yr_train), self.batch_size)
+            callbacks=self.get_callbacks(self.path_out, len(Yr_train), self.batch_size)
             callbacks[0]=stop_early
             
             tuner.search(Xr_train, Yr_train, epochs=self.epochs, validation_data=(Xr_valid, Yr_valid), callbacks=callbacks)
@@ -307,21 +307,21 @@ class training():
             
             # Build the model with the optimal hyperparameters and train it on the data for 100 epochs
             start_time = time.time()
-            model = tuner.hypermodel.build(best_hps)
-            history = model.fit(Xr_train,
+            self.keras_model = tuner.hypermodel.build(best_hps)
+            history = self.keras_model.fit(Xr_train,
                                   Yr_train,
                                   epochs=self.epochs,
                                   batch_size = self.batch_size,
                                   verbose=verbose,
-                                  validation_data=(Xr_valid, Yr_valid), callbacks=get_callbacks(self.path_out, len(Yr_train), self.batch_size))
+                                  validation_data=(Xr_valid, Yr_valid), callbacks=self.get_callbacks(self.path_out, len(Yr_train), self.batch_size))
 
         end_time = time.time() # check end time
         
-        predict_test = keras_model.predict(Xr_test) * self.normFac
+        predict_test = self.keras_model.predict(Xr_test) * self.normFac
         PUPPI_pt = self.normFac * np.sum(Xr_test[1], axis=1)
         Yr_test = self.normFac * Yr_test
 
-        test(Yr_test, predict_test, PUPPI_pt, self.path_out)
+        self.test(Yr_test, predict_test, PUPPI_pt, self.path_out)
 
         fi = open("{}time.txt".format(self.path_out), 'w')
 
