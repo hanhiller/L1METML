@@ -100,7 +100,7 @@ class training():
                                     with_bias=False,
                                     units=[hp_units,32])
         
-        hp_learning_rate = hp.Choice('learning_rate', values=[1, .1, .01,])
+        hp_learning_rate = hp.Choice('learning_rate', values=[1.0, .1, .01,])
         
         optimizer = optimizers.Adam(lr=hp_learning_rate, clipnorm=1.)
         self.keras_model.compile(loss=custom_loss, optimizer=optimizer,
