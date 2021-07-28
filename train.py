@@ -74,7 +74,7 @@ class training():
         extract_result(predict_test, Yr_test, self.path_out, 'TTbar', 'ML')
         extract_result(PUPPI_pt, Yr_test, self.path_out, 'TTbar', 'PU')
         
-        self.MakePlots(Yr_test, predict_test, PUPPI_pt, path_out = self.path_out)
+        MakePlots(Yr_test, predict_test, PUPPI_pt, path_out = self.path_out)
         
         Yr_test = convertXY2PtPhi(Yr_test)
         predict_test = convertXY2PtPhi(predict_test)
@@ -88,7 +88,7 @@ class training():
 
     # create a model with scannable hyperparameters
     def model_builder(self, hp):
-        hp_units = hp.Int('units', min_value=8, max_value=128, step=4)
+        hp_units = hp.Int('units', min_value=8, max_value=24, step=4)
       
         self.keras_model = dense_embedding(n_features = self.n_features_pf,
                                     emb_out_dim=2,
