@@ -104,7 +104,7 @@ class training():
         
         optimizer = optimizers.Adam(lr=hp_learning_rate, clipnorm=1.)
         self.keras_model.compile(loss=custom_loss, optimizer=optimizer,
-                                metrics=['mean_absolute_error', 'mean_squared_error'])
+                                metrics=['val_loss'])
                 
         return self.keras_model
 
@@ -291,11 +291,9 @@ class training():
             
         else:
             verbose=1
-            tuner = kt.Hyperband(self.model_builder,objective='val_accuracy', max_epochs=self.epochs, factor=3, directory=self.path_out, project_name='scan_1stDenseLayer_units')
+            tuner = kt.Hyperband(self.model_builder,objective='val_loss', max_epochs=self.epochs, factor=3, directory=self.path_out, project_name='scan_1stDenseLayer_units')
             
-            stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
             callbacks=self.get_callbacks(self.path_out, len(Yr_train), self.batch_size)
-            callbacks[0]=stop_early
             
             tuner.search(Xr_train, Yr_train, epochs=self.epochs, validation_data=(Xr_valid, Yr_valid), callbacks=callbacks)
 
