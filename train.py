@@ -302,7 +302,7 @@ class training():
             # Get the optimal hyperparameters
             best_hps=tuner.get_best_hyperparameters(num_trials=20)[0]
 
-            print([best_hps.get('units_layer1') best_hps.get('units_layer2')], 'optimal units')
+            print([best_hps.get('units_layer1'), best_hps.get('units_layer2')], 'optimal units')
             print(best_hps.get('learning_rate'), 'optimal learning rate')
             
             
