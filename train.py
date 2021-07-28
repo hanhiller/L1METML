@@ -300,7 +300,7 @@ class training():
             tuner.search(Xr_train, Yr_train, epochs=self.epochs, validation_data=(Xr_valid, Yr_valid), callbacks=callbacks)
 
             # Get the optimal hyperparameters
-            best_hps=tuner.get_best_hyperparameters(num_trials=1)[0]
+            best_hps=tuner.get_best_hyperparameters(num_trials=20)[0]
 
             print(best_hps.get('units'), 'optimal units')
             print(best_hps.get('learning_rate'), 'optimal learning rate')
