@@ -289,7 +289,6 @@ class training():
                                   callbacks=get_callbacks(self.path_out, len(Yr_train), self.batch_size))
             
         else:
-            print(emb_out_dim)
             verbose=1
             tuner = kt.Hyperband(model_builder,objective='val_accuracy', max_epochs=self.epochs, factor=3, directory=self.path_out, project_name='scan_1stDenseLayer_units')
             
