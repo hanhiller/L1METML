@@ -104,7 +104,7 @@ class training():
         
         optimizer = optimizers.Adam(lr=hp_learning_rate, clipnorm=1.)
         self.keras_model.compile(loss=custom_loss, optimizer=optimizer,
-                                metrics=['val_loss'])
+                                metrics=['val_accuracy'])
                 
         return self.keras_model
 
@@ -291,7 +291,7 @@ class training():
             
         else:
             verbose=1
-            tuner = kt.Hyperband(self.model_builder,objective='val_loss', max_epochs=self.epochs, factor=3, directory=self.path_out, project_name='scan_1stDenseLayer_units')
+            tuner = kt.Hyperband(self.model_builder,objective='val_accuracy', max_epochs=self.epochs, factor=3, directory=self.path_out, project_name='scan_1stDenseLayer_units')
             
             callbacks=self.get_callbacks(self.path_out, len(Yr_train), self.batch_size)
             
