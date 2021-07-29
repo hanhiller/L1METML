@@ -11,9 +11,9 @@ spec:
         command:
         - "/bin/bash"
         - "-c"
-        - " git clone -b hyperparams https://github.com/hanhiller/L1METML &&
+        - " git clone https://github.com/hanhiller/L1METML &&
             cd L1METML &&
-            python train.py --dataType h5 --input /l1metmlvol/TTbar_PU200_110X_1M/ --output /l1metmlvol/h5-scan-units/ --mode 1 --epochs 15"
+            python train.py --workflowType h5 --input /l1metmlvol/TTbar_PU200_110X_1M/ --output /l1metmlvol/h5-main-merge-hyperparams-52-52/ --mode 1 --epochs 100"
         volumeMounts:
         - mountPath: /l1metmlvol
           name: l1metmlvol

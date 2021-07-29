@@ -1,4 +1,3 @@
-# Import libraries
 import tensorflow
 import tensorflow.keras.backend as K
 from tensorflow.keras import optimizers, initializers
@@ -89,8 +88,8 @@ class training():
     # create a model with scannable hyperparameters
     def model_builder(self, hp):
     
-        hp_units_layer1 = hp.Int('units_layer1', min_value=4, max_value=64, step=4)
-        hp_units_layer2 = hp.Int('units_layer2', min_value=4, max_value=64, step=4)
+        hp_units_layer1 = hp.Int('units_layer1', min_value=8, max_value=16, step=2)
+        hp_units_layer2 = hp.Int('units_layer2', min_value=32, max_value=64, step=4)
       
         self.keras_model = dense_embedding(n_features = self.n_features_pf,
                                     emb_out_dim=2,
@@ -102,9 +101,7 @@ class training():
                                     with_bias=False,
                                     units=[hp_units_layer1,hp_units_layer2])
         
-        hp_learning_rate = hp.Choice('learning_rate', values=[1.0, .1, .01,])
-        
-        optimizer = optimizers.Adam(lr=hp_learning_rate, clipnorm=1.)
+        optimizer = optimizers.Adam(lr=1.0, clipnorm=1.)
         self.keras_model.compile(loss=custom_loss, optimizer=optimizer,
                                 metrics=['mean_absolute_error', 'mean_squared_error'])
                 
@@ -131,37 +128,38 @@ class training():
         self.emb_input_dim = trainGenerator.emb_input_dim
 
         # Load training model
-        if self.quantized == True:
-        
-            logit_total_bits = 16
-            logit_int_bits = 6
-            activation_total_bits = 16
-            activation_int_bits = 6
-            
-            self.keras_model = dense_embedding_quantized(n_features = self.n_features_pf,
-                                                    emb_out_dim=2,
-                                                    n_features_cat=self.n_features_pf_cat,
-                                                    n_dense_layers=2,
-                                                    activation_quantizer='quantized_relu',
-                                                    embedding_input_dim = self.emb_input_dim,
-                                                    number_of_pupcandis = self.maxNPF,
-                                                    t_mode = self.t_mode,
-                                                    with_bias=False, logit_quantizer = 'quantized_bits',
-                                                    logit_total_bits=logit_total_bits,
-                                                    logit_int_bits=logit_int_bits,
-                                                    activation_total_bits=activation_total_bits,
-                                                    activation_int_bits=activation_int_bits,
-                                                    alpha='auto', use_stochastic_rounding=False)
-        else:
-            self.keras_model = dense_embedding(n_features = self.n_features_pf,
+        if quantized == None:
+            keras_model = dense_embedding(n_features = self.n_features_pf,
                                             emb_out_dim=2,
                                             n_features_cat=self.n_features_pf_cat,
                                             n_dense_layers=2,
                                             activation='tanh',
-                                            embedding_input_dim = self.emb_input_dim,
+                                            embedding_input_dim= self.emb_input_dim,
                                             number_of_pupcandis = self.maxNPF,
-                                            t_mode = self.t_mode,
-                                            with_bias=False)
+                                            t_mode = self.t_mode, with_bias=False)
+        else:
+        
+            logit_total_bits = int(quantized[0])
+            logit_int_bits = int(quantized[1])
+            activation_total_bits = int(quantized[0])
+            activation_int_bits = int(quantized[1])
+            
+            keras_model = dense_embedding_quantized(n_features=self.n_features_pf,
+                                                    emb_out_dim=2,
+                                                    n_features_cat=self.n_features_pf_cat,
+                                                    n_dense_layers=2,
+                                                    activation_quantizer='quantized_relu',
+                                                    embedding_input_dim=self.emb_input_dim,
+                                                    number_of_pupcandis=self.maxNPF,
+                                                    t_mode = self.t_mode,
+                                                    with_bias=False,
+                                                    logit_quantizer = 'quantized_bits',
+                                                    logit_total_bits=logit_total_bits,
+                                                    logit_int_bits=logit_int_bits,
+                                                    activation_total_bits=activation_total_bits,
+                                                    activation_int_bits=activation_int_bits,
+                                                    alpha=1,
+                                                    use_stochastic_rounding=False)
 
         # Check which model will be used (0 for L1MET Model, 1 for DeepMET Model)
         if self.t_mode == 0:
@@ -204,7 +202,6 @@ class training():
 
         fi.write("Working Time (s) : {}".format(end_time - start_time))
         fi.write("Working Time (m) : {}".format((end_time - start_time)/60.))
-
         fi.close()
         
     def trainFrom_h5(self):
@@ -246,7 +243,7 @@ class training():
         Yr_valid = Yr[indices_valid]
 
         # Load training model
-        if self.quantized == True:
+        if self.quantized != None:
         
             logit_total_bits = 16
             logit_int_bits = 6
@@ -315,7 +312,9 @@ class training():
                                   epochs=self.epochs,
                                   batch_size = self.batch_size,
                                   verbose=verbose,
-                                  validation_data=(Xr_valid, Yr_valid), callbacks=self.get_callbacks(self.path_out, len(Yr_train), self.batch_size))
+                                  validation_data=(Xr_valid, Yr_valid),
+                                  callbacks=self.get_callbacks(self.path_out, len(Yr_train),
+                                  self.batch_size))
 
         end_time = time.time() # check end time
         
@@ -334,26 +333,25 @@ class training():
 
 def main():
     time_path = time.strftime('%Y-%m-%d', time.localtime(time.time()))
-    path = "./result/"+time_path+"_PUPPICandidates/"
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataType', action='store', type=str, required=True, choices=['h5', 'root'], help='designate input file path')
+    parser.add_argument('--workflowType', action='store', type=str, required=True, choices=['h5', 'root'], help='designate input file path')
     parser.add_argument('--input', action='store', type=str, required=True, help='designate input file path')
     parser.add_argument('--output', action='store', type=str, required=True, help='designate output file path')
     parser.add_argument('--mode', action='store', type=int, required=True, choices=[0, 1], help='0 for L1MET, 1 for DeepMET')
     parser.add_argument('--epochs', action='store', type=int, required=False, default=100)
-    parser.add_argument('--quantized', action='store_true', required=False, help='flag for quantized model, empty for normal model')
+    parser.add_argument('--quantized', action='store', required=False, nargs='+', help='flag for quantized model and specify [total bits] [int bits]; empty for normal model')
     
     args = parser.parse_args()
-    dataType = args.dataType
+    workflowType = args.workflowType
 
     L1MET_training = training(args)
     
     os.makedirs(args.output,exist_ok=True)
 
-    if dataType == 'h5':
+    if workflowType == 'h5':
             L1MET_training.trainFrom_h5()
-    elif dataType == 'root':
+    elif workflowType == 'root':
             L1MET_training.trainFrom_Root()
 
 if __name__ == "__main__":
