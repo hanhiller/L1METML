@@ -204,7 +204,7 @@ def trainFrom_h5(args):
         if not os.path.isfile(h5file_path):
             os.system(f'python convertNanoToHDF5_L1triggerToDeepMET.py -i {ifile} -o {h5file_path}')
         h5files.append(h5file_path)
-        i+=1
+        readFiles+=1
         if readFiles==nFiles:
             break
 
