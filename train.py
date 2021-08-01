@@ -193,15 +193,20 @@ def trainFrom_h5(args):
     path_out = args.output
     quantized = args.quantized
     units = list(map(int, args.units))
+    nFiles = args.nFiles
 
     # Read inputs
     # convert root files to h5 and store in same location
     h5files = []
+    readFiles=0
     for ifile in glob(os.path.join(f'{inputPath}', '*.root')):
         h5file_path = ifile.replace('.root', '.h5')
         if not os.path.isfile(h5file_path):
             os.system(f'python convertNanoToHDF5_L1triggerToDeepMET.py -i {ifile} -o {h5file_path}')
         h5files.append(h5file_path)
+        i+=1
+        if readFiles==nFiles:
+            break
 
     # It may be desireable to set specific files as the train, test, valid data sets
     # For now I keep train.py used: selection from a list of indicies
@@ -316,7 +321,8 @@ def main():
     parser.add_argument('--epochs', action='store', type=int, required=False, default=100)
     parser.add_argument('--quantized', action='store', required=False, nargs='+', help='optional argument: flag for quantized model and specify [total bits] [int bits]; empty for normal model')
     parser.add_argument('--units', action='store', required=False, nargs='+', help='optional argument: specify number of units in each layer (also sets the number of layers)')
-
+    parser.add_argument('--nFiles', action='store', type=int, required=False, default=7)
+    
     args = parser.parse_args()
     workflowType = args.workflowType
 
