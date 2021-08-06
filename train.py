@@ -280,7 +280,7 @@ def trainFrom_h5(args):
     i=0
     Pt_Res_differences = []
     for indices_train, indices_test in kf_trainTest.split(indices):
-        for indices_train, indices_valid in kf_trainValid.split(indices):
+        for indices_train, indices_valid in kf_trainValid.split(indicesTrain):
             if i<3:
                 print(indices_test)
                 print(indices_train)
