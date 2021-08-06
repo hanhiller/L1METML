@@ -27,7 +27,6 @@ from cyclical_learning_rate import CyclicLR
 from models import *
 from utils import *
 from loss import custom_loss
-from DataGenerator import DataGenerator
 
 
 def get_callbacks(path_out, sample_size, batch_size):
@@ -97,7 +96,8 @@ def trainFrom_Root(args):
     train_filesList = filesList[0:train_nfiles]
     valid_filesList = filesList[train_nfiles: train_nfiles+valid_nfiles]
     test_filesList = filesList[train_nfiles+valid_nfiles:test_nfiles+train_nfiles+valid_nfiles]
-
+    
+    from DataGenerator_root import DataGenerator_root
     trainGenerator = DataGenerator_root(list_files=train_filesList, batch_size=batch_size)
     validGenerator = DataGenerator_root(list_files=valid_filesList, batch_size=batch_size)
     testGenerator = DataGenerator_root(list_files=test_filesList, batch_size=batch_size)
@@ -205,6 +205,7 @@ def trainFrom_h5(args):
     valid_filesList = filesList[train_nfiles: train_nfiles+valid_nfiles]
     test_filesList = filesList[train_nfiles+valid_nfiles:test_nfiles+train_nfiles+valid_nfiles]
     
+    from DataGenerator_h5 import DataGenerator_h5
     trainGenerator = DataGenerator_h5(list_files=train_filesList, batch_size=batch_size)
     validGenerator = DataGenerator_h5(list_files=valid_filesList, batch_size=batch_size)
     testGenerator = DataGenerator_h5(list_files=test_filesList, batch_size=batch_size)
