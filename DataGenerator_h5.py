@@ -23,7 +23,7 @@ class DataGenerator_h5(tensorflow.keras.utils.Sequence):
         self.local_IDs = []
         self.file_mapping = []
         self.max_entry = max_entry
-        self.open_files = [None]*len(self.h5files)
+        self.open_files = [None]*len(list_files)
         running_total = 0
         
         self.h5files = []
