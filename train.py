@@ -283,7 +283,7 @@ def trainFrom_h5(args):
         for indices_train, indices_valid in kf_trainValid.split(indices):
             if i<3:
                 print(indices_test)
-                print(indices_test)
+                print(indices_train)
                 print(indices_valid)
                 i+=1
             Xr_train = [x[indices_train] for x in Xr]
