@@ -98,9 +98,9 @@ def trainFrom_Root(args):
     valid_filesList = filesList[train_nfiles: train_nfiles+valid_nfiles]
     test_filesList = filesList[train_nfiles+valid_nfiles:test_nfiles+train_nfiles+valid_nfiles]
 
-    trainGenerator = DataGenerator(list_files=train_filesList, batch_size=batch_size)
-    validGenerator = DataGenerator(list_files=valid_filesList, batch_size=batch_size)
-    testGenerator = DataGenerator(list_files=test_filesList, batch_size=batch_size)
+    trainGenerator = DataGenerator_root(list_files=train_filesList, batch_size=batch_size)
+    validGenerator = DataGenerator_root(list_files=valid_filesList, batch_size=batch_size)
+    testGenerator = DataGenerator_root(list_files=test_filesList, batch_size=batch_size)
     Xr_train, Yr_train = trainGenerator[0]  # this apparenly calls all the attributes, so that we can get the correct input dimensions (train_generator.emb_input_dim)
 
     # Load training model
@@ -194,43 +194,21 @@ def trainFrom_h5(args):
     quantized = args.quantized
     units = list(map(int, args.units))
 
-    # Read inputs
-    # convert root files to h5 and store in same location
-    h5files = []
-    for ifile in glob(os.path.join(f'{inputPath}', '*.root')):
-        h5file_path = ifile.replace('.root', '.h5')
-        if not os.path.isfile(h5file_path):
-            os.system(f'python convertNanoToHDF5_L1triggerToDeepMET.py -i {ifile} -o {h5file_path}')
-        h5files.append(h5file_path)
-
-    # It may be desireable to set specific files as the train, test, valid data sets
-    # For now I keep train.py used: selection from a list of indicies
-
-    Xorg, Y = read_input(h5files)
-    Y = Y / -normFac
-
-    Xi, Xp, Xc1, Xc2 = preProcessing(Xorg, normFac)
-    Xc = [Xc1, Xc2]
-
-    emb_input_dim = {
-        i: int(np.max(Xc[i][0:1000])) + 1 for i in range(n_features_pf_cat)
-    }
-
-    # Prepare training/val data
-    Yr = Y
-    Xr = [Xi, Xp] + Xc
-
-    indices = np.array([i for i in range(len(Yr))])
-    indices_train, indices_test = train_test_split(indices, test_size=1./7., random_state=7)
-    indices_train, indices_valid = train_test_split(indices_train, test_size=1./6., random_state=7)
-    # roughly the same split as the root workflow
-
-    Xr_train = [x[indices_train] for x in Xr]
-    Xr_test = [x[indices_test] for x in Xr]
-    Xr_valid = [x[indices_valid] for x in Xr]
-    Yr_train = Yr[indices_train]
-    Yr_test = Yr[indices_test]
-    Yr_valid = Yr[indices_valid]
+    filesList = glob(os.path.join(f'{inputPath}', '*.root'))
+    filesList.sort(reverse=True)
+    valid_nfiles = int(.1*len(filesList))
+    if valid_nfiles == 0:
+        valid_nfiles = 1
+    train_nfiles = len(filesList) - 2*valid_nfiles
+    test_nfiles = valid_nfiles
+    train_filesList = filesList[0:train_nfiles]
+    valid_filesList = filesList[train_nfiles: train_nfiles+valid_nfiles]
+    test_filesList = filesList[train_nfiles+valid_nfiles:test_nfiles+train_nfiles+valid_nfiles]
+    
+    trainGenerator = DataGenerator_h5(list_files=train_filesList, batch_size=batch_size)
+    validGenerator = DataGenerator_h5(list_files=valid_filesList, batch_size=batch_size)
+    testGenerator = DataGenerator_h5(list_files=test_filesList, batch_size=batch_size)
+    Xr_train, Yr_train = trainGenerator[0]  # this apparenly calls all the attributes, so that we can get the correct input dimensions (train_generator.emb_input_dim)
 
     # Load training model
     if quantized is None:
@@ -281,12 +259,11 @@ def trainFrom_h5(args):
     print(keras_model.summary())
 
     start_time = time.time()  # check start time
-    history = keras_model.fit(Xr_train,
-                              Yr_train,
+    history = keras_model.fit(trainGenerator
                               epochs=epochs,
                               batch_size=batch_size,
                               verbose=verbose,  # switch to 1 for more verbosity
-                              validation_data=(Xr_valid, Yr_valid),
+                              validation_data=validGenerator,
                               callbacks=get_callbacks(path_out, len(Yr_train), batch_size))
 
     end_time = time.time()  # check end time
