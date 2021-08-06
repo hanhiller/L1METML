@@ -4,7 +4,7 @@ from tensorflow.keras import optimizers, initializers
 from tensorflow.keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, EarlyStopping, CSVLogger
 from tensorflow.keras.utils import plot_model
 from tensorflow.keras.models import Model
-from sklearn.model_selection import train_test_split, KFold
+from sklearn.model_selection import train_test_split
 
 import numpy as np
 import tables
@@ -198,11 +198,7 @@ def trainFrom_h5(args):
     # Read inputs
     # convert root files to h5 and store in same location
     h5files = []
-    i=0
     for ifile in glob(os.path.join(f'{inputPath}', '*.root')):
-        i+=1
-        if i==4:
-            break
         h5file_path = ifile.replace('.root', '.h5')
         if not os.path.isfile(h5file_path):
             os.system(f'python convertNanoToHDF5_L1triggerToDeepMET.py -i {ifile} -o {h5file_path}')
@@ -274,14 +270,19 @@ def trainFrom_h5(args):
     print(keras_model.summary())
     
     indices = np.array([i for i in range(len(Yr))])
-    kf_trainTest = KFold(n_splits=7)
-    kf_trainValid = KFold(n_splits=6)
+    indices=np.array_split(indices, 7)
     
-    i=0
     Pt_Res_differences = []
-    for indices_train, indices_test in kf_trainTest.split(indices):
-        for indices_train, indices_valid in kf_trainValid.split(indices_train):
-            if i<3:
+    for i,test_indices in enumerate(indices):
+        _indices = indices
+        _indices=np.delete(_indices, i)
+        for j in np.arange(-1,6):
+            __indices = _indices
+            valid_indices = _indices[j]
+            __indices=np.delete(__indices, j)
+            train_indices = np.concatenate(__indices))
+        
+            if i<8:
                 print(indices_test)
                 print(indices_train)
                 print(indices_valid)
