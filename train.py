@@ -79,7 +79,7 @@ def trainFrom_Root(args):
     n_features_pf = 6
     n_features_pf_cat = 2
     normFac = 1.
-    epochs = 1
+    epochs = args.epochs
     batch_size = 1024
     preprocessed = True
     t_mode = args.mode
@@ -186,7 +186,7 @@ def trainFrom_h5(args):
     n_features_pf = 6
     n_features_pf_cat = 2
     normFac = 1.
-    epochs = 1
+    epochs = args.epochs
     batch_size = 1024
     preprocessed = True
     t_mode = args.mode
