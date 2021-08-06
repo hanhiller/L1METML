@@ -280,7 +280,7 @@ def trainFrom_h5(args):
             __indices = _indices
             valid_indices = _indices[j]
             __indices=np.delete(__indices, j)
-            train_indices = np.concatenate(__indices))
+            train_indices = np.concatenate(__indices)
         
             if i<8:
                 print(indices_test)
