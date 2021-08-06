@@ -308,6 +308,7 @@ def trainFrom_h5(args):
             PUPPI_pt = normFac * np.sum(Xr_test[1], axis=1)
             Yr_test = normFac * Yr_test
 
+            print(Pt_Res_differences)
             Pt_Res_differences = []
             Pt_Res_differences.append(test(Yr_test, predict_test, PUPPI_pt, path_out))
             print(Pt_Res_differences)
