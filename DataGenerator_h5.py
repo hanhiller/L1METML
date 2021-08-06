@@ -33,7 +33,7 @@ class DataGenerator(tensorflow.keras.utils.Sequence):
                 os.system(f'python convertNanoToHDF5_L1triggerToDeepMET.py -i {ifile} -o {h5file_path}')
             self.h5files.append(h5file_path)
         for i, file_name in enumerate(self.h5files):
-            with h5py.File(file_name, "r") as h5_file
+            with h5py.File(file_name, "r") as h5_file:
                 self.open_files.append(h5_file)
                 nEntries = len(h5_file['X'])
                 self.global_IDs.append(np.arange(running_total, running_total+nEntries))
