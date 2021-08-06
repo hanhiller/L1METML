@@ -280,7 +280,7 @@ def trainFrom_h5(args):
     i=0
     for indices_train, indices_test in kf_trainTest.split(indices):
         for indices_train, indices_valid in kf_trainValid.split(indices):
-            if i>3:
+            if i<3:
                 print(indices_test)
                 print(indices_valid)
                 print(indices_valid)
