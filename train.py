@@ -58,7 +58,8 @@ def get_callbacks(path_out, sample_size, batch_size):
 
 def test(Yr_test, predict_test, PUPPI_pt, path_out):
     
-    return MakePlots(Yr_test, predict_test, PUPPI_pt, path_out = path_out) # returns averagePt_Res_difference for a given training
+    return MakePlots(Yr_test, predict_test, PUPPI_pt, path_out = path_out)
+    #returns averagePt_Res_difference for a given training
     
     '''Yr_test = convertXY2PtPhi(Yr_test)
     predict_test = convertXY2PtPhi(predict_test)
