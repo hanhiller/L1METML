@@ -7,7 +7,7 @@ from utils import convertXY2PtPhi, preProcessing, to_np_array
 import h5py
 
 
-class DataGenerator(tensorflow.keras.utils.Sequence):
+class DataGenerator_h5(tensorflow.keras.utils.Sequence):
     'Generates data for Keras'
 
     def __init__(self, list_files, batch_size=1024, n_dim=100,
