@@ -5,6 +5,7 @@ import uproot
 import awkward as ak
 from utils import convertXY2PtPhi, preProcessing, to_np_array
 import h5py
+import os
 
 
 class DataGenerator_h5(tensorflow.keras.utils.Sequence):
