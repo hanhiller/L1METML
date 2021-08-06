@@ -269,9 +269,16 @@ def trainFrom_h5(args):
 
     end_time = time.time()  # check end time
 
-    predict_test = keras_model.predict(Xr_test) * normFac
-    PUPPI_pt = normFac * np.sum(Xr_test[1], axis=1)
-    Yr_test = normFac * Yr_test
+    predict_test = keras_model.predict(testGenerator) * normFac
+    all_PUPPI_pt = []
+    Yr_test = []
+    for (Xr, Yr) in tqdm.tqdm(testGenerator):
+        puppi_pt = np.sum(Xr[1], axis=1)
+        all_PUPPI_pt.append(puppi_pt)
+        Yr_test.append(Yr)
+
+    PUPPI_pt = normFac * np.concatenate(all_PUPPI_pt)
+    Yr_test = normFac * np.concatenate(Yr_test)
 
     test(Yr_test, predict_test, PUPPI_pt, path_out)
 
