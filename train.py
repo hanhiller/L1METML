@@ -278,11 +278,12 @@ def trainFrom_h5(args):
     kf_trainValid = KFold(n_splits=6)
     
     i=0
+    Pt_Res_differences = []
     for indices_train, indices_test in kf_trainTest.split(indices):
         for indices_train, indices_valid in kf_trainValid.split(indices):
             if i<3:
                 print(indices_test)
-                print(indices_valid)
+                print(indices_test)
                 print(indices_valid)
                 i+=1
             Xr_train = [x[indices_train] for x in Xr]
@@ -308,10 +309,7 @@ def trainFrom_h5(args):
             PUPPI_pt = normFac * np.sum(Xr_test[1], axis=1)
             Yr_test = normFac * Yr_test
 
-            print(Pt_Res_differences)
-            Pt_Res_differences = []
             Pt_Res_differences.append(test(Yr_test, predict_test, PUPPI_pt, path_out))
-            print(Pt_Res_differences)
             
             '''fi = open("{}time.txt".format(path_out), 'w')
 
