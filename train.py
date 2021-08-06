@@ -259,7 +259,7 @@ def trainFrom_h5(args):
     print(keras_model.summary())
 
     start_time = time.time()  # check start time
-    history = keras_model.fit(trainGenerator
+    history = keras_model.fit(trainGenerator,
                               epochs=epochs,
                               batch_size=batch_size,
                               verbose=verbose,  # switch to 1 for more verbosity
