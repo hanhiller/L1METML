@@ -232,7 +232,7 @@ def trainFrom_h5(args):
                                                 emb_out_dim=2,
                                                 n_features_cat=n_features_pf_cat,
                                                 activation_quantizer='quantized_relu',
-                                                embedding_input_dim=emb_input_dim,
+                                                embedding_input_dim=trainGenerator.emb_input_dim,
                                                 number_of_pupcandis=maxNPF,
                                                 t_mode=t_mode,
                                                 with_bias=False,
