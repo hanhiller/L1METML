@@ -273,14 +273,14 @@ def trainFrom_h5(args):
     indices=np.array_split(indices, 7)
     
     Pt_Res_differences = []
-    for i,test_indices in enumerate(indices):
+    for i,indices_test in enumerate(indices):
         _indices = indices
         _indices=np.delete(_indices, i)
-        for j in np.arange(-1,6):
+        for j in np.arange(-1,5):
             __indices = _indices
-            valid_indices = _indices[j]
+            indices_valid = _indices[j]
             __indices=np.delete(__indices, j)
-            train_indices = np.concatenate(__indices)
+            indices_train = np.concatenate(__indices)
         
             if i<8:
                 print(indices_test)
