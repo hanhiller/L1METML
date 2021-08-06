@@ -84,6 +84,7 @@ def trainFrom_Root(args):
     preprocessed = True
     t_mode = args.mode
     path_out = args.output
+    inputPath = args.input
     quantized = args.quantized
     units = args.units
 
@@ -189,6 +190,7 @@ def trainFrom_h5(args):
     batch_size = 1024
     preprocessed = True
     t_mode = args.mode
+    inputPath = args.input
     path_out = args.output
     quantized = args.quantized
     units = args.units
