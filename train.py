@@ -265,7 +265,7 @@ def trainFrom_h5(args):
         optimizer = optimizers.Adam(lr=1., clipnorm=1.)
         keras_model.compile(loss=custom_loss, optimizer=optimizer,
                                     metrics=['mean_absolute_error', 'mean_squared_error'])
-        verbose = 1
+        verbose = 0
 
             # Run training
     print(keras_model.summary())
@@ -275,6 +275,7 @@ def trainFrom_h5(args):
     
     Pt_Res_differences = []
     for i, indices_test in enumerate(indices):
+        timeStart = time.time()
         _indices = indices
         _indices=np.delete(_indices, i)
         for j in np.arange(-1,5):
@@ -287,7 +288,7 @@ def trainFrom_h5(args):
                 print(indices_test)
                 print(indices_train)
                 print(indices_valid)
-                i+=1
+            i+=1
             Xr_train = [x[indices_train] for x in Xr]
             Xr_test = [x[indices_test] for x in Xr]
             Xr_valid = [x[indices_valid] for x in Xr]
@@ -311,7 +312,12 @@ def trainFrom_h5(args):
             PUPPI_pt = normFac * np.sum(Xr_test[1], axis=1)
             Yr_test = normFac * Yr_test
 
-            Pt_Res_differences.append(test(Yr_test, predict_test, PUPPI_pt, path_out))
+            Pt_Res_difference = test(Yr_test, predict_test, PUPPI_pt, path_out)
+            Pt_Res_differencesList.append(Pt_Res_difference)
+            print('Pt Resolution Difference {i} = ' Pt_Res_difference)
+            
+            trainingTime = time.time()- timeStart
+            print(f'training no.{i} took {trainingTime}')
             
             '''fi = open("{}time.txt".format(path_out), 'w')
 
@@ -320,8 +326,8 @@ def trainFrom_h5(args):
 
             fi.close()'''
             
-    print('PtRe Difference Mean', np.mean(Pt_Res_differences))
-    print('Pt Res Difference Std', statistics.stdev(Pt_Res_differences))
+    print('PtRe Difference Mean', np.mean(Pt_Res_differencesList))
+    print('Pt Res Difference Std', statistics.stdev(Pt_Res_differencesList))
 
 
 def main():
