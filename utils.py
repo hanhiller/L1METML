@@ -82,7 +82,7 @@ def MakePlots(trueXY, mlXY, puppiXY, path_out):
                         statistic='mean', bins=binnings, range=(0,400))
     
     # plot response
-    plt.figure()
+    '''plt.figure()
     plt.hlines(truth_means/truth_means, bin_edges[:-1], bin_edges[1:], colors='k', lw=5,
            label='Truth', linestyles='solid')
     plt.hlines(ml_means/truth_means, bin_edges[:-1], bin_edges[1:], colors='r', lw=5,
@@ -95,7 +95,7 @@ def MakePlots(trueXY, mlXY, puppiXY, path_out):
     plt.legend(loc='lower right')
     plt.ylabel('<MET Estimation>/<MET Truth>')
     plt.savefig(f"{path_out}MET_response.png")
-    plt.close()
+    plt.close()'''
     
     #width of a distribution at 1 standard deviation
     def resolqt(y):
@@ -149,9 +149,11 @@ def MakePlots(trueXY, mlXY, puppiXY, path_out):
     averagePt_Res_difference = average_ptRes_puppi - average_ptRes_ml
     # these two similar metrics can be used to compare the performance across trainings
     # for now, i will compute both
+    
+    return averagePt_Res_difference
 
     # the square root of the number of events in each bin
-    rootN=[]
+    '''rootN=[]
     for bin in range(nbins):
         nEvents_inBin = len(binnumber[binnumber==bin+1])
         rootN.append((nEvents_inBin)**(.5))
@@ -270,7 +272,7 @@ def MakePlots(trueXY, mlXY, puppiXY, path_out):
     fig2.text(0, 1.03, f'average pt resolution difference ={round(averagePt_Res_difference,3)}', fontsize=15)
     
     fig1.savefig(f"{path_out}XY_resolution_plots.png",bbox_inches="tight")
-    fig2.savefig(f"{path_out}pt_resolution_plots.png",bbox_inches="tight")
+    fig2.savefig(f"{path_out}pt_resolution_plots.png",bbox_inches="tight")'''
     
 
 def Make1DHists(truth, ML, PUPPI, xmin=0, xmax=400, nbins=100, density=False, xname="pt [GeV]", yname="A.U.", outputname="1ddistribution.png"):
