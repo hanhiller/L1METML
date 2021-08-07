@@ -265,7 +265,6 @@ def trainFrom_h5(args):
         optimizer = optimizers.Adam(lr=1., clipnorm=1.)
         keras_model.compile(loss=custom_loss, optimizer=optimizer,
                                     metrics=['mean_absolute_error', 'mean_squared_error'])
-        verbose = 0
 
             # Run training
     print(keras_model.summary())
@@ -302,7 +301,7 @@ def trainFrom_h5(args):
                                       Yr_train,
                                       epochs=epochs,
                                       batch_size=batch_size,
-                                      verbose=verbose,  # switch to 1 for more verbosity
+                                      verbose=0,  # switch to 1 for more verbosity
                                       validation_data=(Xr_valid, Yr_valid),
                                       callbacks=get_callbacks(path_out, len(Yr_train), batch_size))
 
