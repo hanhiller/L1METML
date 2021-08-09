@@ -272,7 +272,7 @@ def trainFrom_h5(args):
     indices = np.array([i for i in range(len(Yr))])
     indices=np.array_split(indices, 7)
     
-    Pt_Res_differences = []
+    Pt_Res_differencesList = []
     for i, indices_test in enumerate(indices):
         timeStart = time.time()
         _indices = indices
