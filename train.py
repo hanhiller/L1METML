@@ -315,7 +315,7 @@ def trainFrom_h5(args):
 
             Pt_Res_difference = test(Yr_test, predict_test, PUPPI_pt, path_out)
             Pt_Res_differencesList.append(Pt_Res_difference)
-            print('Pt Resolution Difference {i} = ' Pt_Res_difference)
+            print('Pt Resolution Difference {i} = {Pt_Res_difference}')
             
             trainingTime = time.time()- timeStart
             print(f'training no.{i} took {trainingTime}')
