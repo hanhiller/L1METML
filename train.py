@@ -274,21 +274,15 @@ def trainFrom_h5(args):
     
     Pt_Res_differencesList = []
     for i, indices_test in enumerate(indices):
-        i = i*6
         timeStart = time.time()
         _indices = indices
         _indices=np.delete(_indices, i)
-        for j in np.arange(-1,5):
+        for j in np.arange(1,7):
             __indices = _indices
             indices_valid = _indices[j]
             __indices=np.delete(__indices, j)
             indices_train = np.concatenate(__indices)
         
-            if i<8:
-                print(indices_test)
-                print(indices_train)
-                print(indices_valid)
-            i+=1
             Xr_train = [x[indices_train] for x in Xr]
             Xr_test = [x[indices_test] for x in Xr]
             Xr_valid = [x[indices_valid] for x in Xr]
@@ -313,10 +307,10 @@ def trainFrom_h5(args):
 
             Pt_Res_difference = test(Yr_test, predict_test, PUPPI_pt, path_out)
             Pt_Res_differencesList.append(Pt_Res_difference)
-            print(f'Pt Resolution Difference {i} = {Pt_Res_difference}')
+            print(f'Pt Resolution Difference {i*6+j} = {Pt_Res_difference}')
             
             trainingTime = (time.time()- timeStart)/60
-            print(f'training no.{i} took {trainingTime} minutes')
+            print(f'training no.{i*6+j} took {trainingTime} minutes')
             
             '''fi = open("{}time.txt".format(path_out), 'w')
 
