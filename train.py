@@ -281,10 +281,6 @@ def trainFrom_h5(args):
         _indices=np.delete(_indices, i)
         indices_train = np.concatenate(_indices)
         
-        if i<3:
-            print(indices_test)
-            print(indices_train)
-            print(indices_valid)
         i+=1
         Xr_train = [x[indices_train] for x in Xr]
         Xr_test = [x[indices_test] for x in Xr]
