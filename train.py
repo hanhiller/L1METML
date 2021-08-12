@@ -296,7 +296,6 @@ def trainFrom_h5(args):
             Yr_train = Yr[indices_train]
             Yr_valid = Yr[indices_valid]
             
-            print('i before')
             start_time = time.time()  # check start time
             history = keras_model.fit(Xr_train,
                                       Yr_train,
@@ -307,8 +306,7 @@ def trainFrom_h5(args):
                                       callbacks=get_callbacks(path_out, len(Yr_train), batch_size))
 
             end_time = time.time()  # check end time
-            print('i after')
-
+            
             predict_test = keras_model.predict(Xr_test) * normFac
             PUPPI_pt = normFac * np.sum(Xr_test[1], axis=1)
             Yr_test = normFac * Yr_test
