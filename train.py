@@ -273,32 +273,29 @@ def trainFrom_h5(args):
     indices=np.array_split(indices, 7)
     
     Pt_Res_differencesList = []
-    for i, indices_test in enumerate(indices):
-        timeStart = time.time()
+    indices_test = indices[1]
+    indices=np.delete(indices, 1)
+    timeStart = time.time()
+    for i, indices_valid in enumerate(indices):
         _indices = indices
         _indices=np.delete(_indices, i)
-        for j in np.arange(-1,5):
-            __indices = _indices
-            indices_valid = _indices[j]
-            __indices=np.delete(__indices, j)
-            indices_train = np.concatenate(__indices)
+        indices_train = np.concatenate(_indices)
         
-            if i<8:
-                print(indices_test)
-                print(indices_train)
-                print(indices_valid)
-            i+=1
-            Xr_train = [x[indices_train] for x in Xr]
-            Xr_test = [x[indices_test] for x in Xr]
-            Xr_valid = [x[indices_valid] for x in Xr]
-            Yr_test = Yr[indices_test]
-            Yr_train = Yr[indices_train]
-            Yr_test = Yr[indices_test]
-            Yr_valid = Yr[indices_valid]
-            
-            print('i before')
-            start_time = time.time()  # check start time
-            history = keras_model.fit(Xr_train,
+        if i<3:
+            print(indices_test)
+            print(indices_train)
+            print(indices_valid)
+        i+=1
+        Xr_train = [x[indices_train] for x in Xr]
+        Xr_test = [x[indices_test] for x in Xr]
+        Xr_valid = [x[indices_valid] for x in Xr]
+        Yr_test = Yr[indices_test]
+        Yr_train = Yr[indices_train]
+        Yr_test = Yr[indices_test]
+        Yr_valid = Yr[indices_valid]
+        
+        start_time = time.time()  # check start time
+        history = keras_model.fit(Xr_train,
                                       Yr_train,
                                       epochs=epochs,
                                       batch_size=batch_size,
@@ -306,26 +303,24 @@ def trainFrom_h5(args):
                                       validation_data=(Xr_valid, Yr_valid),
                                       callbacks=get_callbacks(path_out, len(Yr_train), batch_size))
 
-            end_time = time.time()  # check end time
-            print('i after')
+        end_time = time.time()  # check end time
 
-            predict_test = keras_model.predict(Xr_test) * normFac
-            PUPPI_pt = normFac * np.sum(Xr_test[1], axis=1)
-            Yr_test = normFac * Yr_test
+        predict_test = keras_model.predict(Xr_test) * normFac
+        PUPPI_pt = normFac * np.sum(Xr_test[1], axis=1)
+        Yr_test = normFac * Yr_test
 
-            Pt_Res_difference = test(Yr_test, predict_test, PUPPI_pt, path_out)
-            Pt_Res_differencesList.append(Pt_Res_difference)
-            print(f'Pt Resolution Difference {i} = {Pt_Res_difference}')
+        Pt_Res_difference = test(Yr_test, predict_test, PUPPI_pt, path_out)
+        Pt_Res_differencesList.append(Pt_Res_difference)
+        print(f'Pt Resolution Difference {i} = {Pt_Res_difference}')
             
-            trainingTime = (time.time()- timeStart)/60
-            print(f'training no.{i} took {trainingTime} minutes')
+        trainingTime = (time.time()- timeStart)/60
+        print(f'training no.{i} took {trainingTime} minutes')
             
-            '''fi = open("{}time.txt".format(path_out), 'w')
+        '''fi = open("{}time.txt".format(path_out), 'w')
+        fi.write("Working Time (s) : {}".format(end_time - start_time))
+        fi.write("Working Time (m) : {}".format((end_time - start_time)/60.))
 
-            fi.write("Working Time (s) : {}".format(end_time - start_time))
-            fi.write("Working Time (m) : {}".format((end_time - start_time)/60.))
-
-            fi.close()'''
+        fi.close()'''
             
     print('PtRe Difference Mean', np.mean(Pt_Res_differencesList))
     print('Pt Res Difference Std', statistics.stdev(Pt_Res_differencesList))
