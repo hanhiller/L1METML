@@ -291,7 +291,6 @@ def trainFrom_h5(args):
         Xr_valid = [x[indices_valid] for x in Xr]
         Yr_test = Yr[indices_test]
         Yr_train = Yr[indices_train]
-        Yr_test = Yr[indices_test]
         Yr_valid = Yr[indices_valid]
         
         start_time = time.time()  # check start time
