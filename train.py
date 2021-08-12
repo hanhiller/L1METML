@@ -275,8 +275,8 @@ def trainFrom_h5(args):
     Pt_Res_differencesList = []
     indices_test = indices[1]
     indices=np.delete(indices, 1)
-    timeStart = time.time()
     for i, indices_valid in enumerate(indices):
+        timeStart = time.time()
         _indices = indices
         _indices=np.delete(_indices, i)
         indices_train = np.concatenate(_indices)
