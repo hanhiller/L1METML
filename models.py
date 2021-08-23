@@ -23,7 +23,7 @@ def dense_embedding(n_features=6,
     pxpy = Input(shape=(number_of_pupcandis, 2), name='input_pxpy')
 
     embeddings = []
-    inputs = [inputs_cont, pxpy]
+    inputs = [inputs_cont]
     for i_emb in range(n_features_cat):
         input_cat = Input(shape=(number_of_pupcandis, 1), name='input_cat{}'.format(i_emb))
         inputs.append(input_cat)
@@ -99,7 +99,7 @@ def dense_embedding_quantized(n_features=6,
         embedding = Reshape((number_of_pupcandis, emb_out_dim))(embedding)
         embeddings.append(embedding)
 
-    x = Concatenate()([inputs_cont, pxpy] + [emb for emb in embeddings])
+    x = Concatenate()([inputs_cont] + [emb for emb in embeddings])
     
     for i_dense in range(n_dense_layers):
         x = QDense(units[i_dense], kernel_quantizer=logit_quantizer, bias_quantizer=logit_quantizer, kernel_initializer='lecun_uniform')(x)
