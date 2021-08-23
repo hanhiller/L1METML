@@ -204,12 +204,12 @@ def train_loadAllData(args):
     for i in range(7):
         h5files = []
         for j,ifile in enumerate(glob(os.path.join(f'{inputPath}', '*.root'))):
-            if i==j:
-                break
             h5file_path = ifile.replace('.root', '.h5')
             if not os.path.isfile(h5file_path):
                 os.system(f'python convertNanoToHDF5_L1triggerToDeepMET.py -i {ifile} -o {h5file_path}')
             h5files.append(h5file_path)
+            if i==j:
+                break
 
         # It may be desireable to set specific files as the train, test, valid data sets
         # For now I keep train.py used: selection from a list of indicies
