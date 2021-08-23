@@ -153,8 +153,10 @@ def MakePlots(trueXY, mlXY, puppiXY, path_out):
     averagePt_Res_difference = average_ptRes_puppi - average_ptRes_ml
     # these two similar metrics can be used to compare the performance across trainings
     # for now, i will compute both
+    
+    return averagePt_Res_difference
 
-    # the square root of the number of events in each bin
+    '''# the square root of the number of events in each bin
     nEvents_inBin, _ = np.histogram(binnumber, bins=nbins, range=(1,nbins))
     rootN = np.sqrt(nEvents_inBin)
     # is used to calculate the error bars for each bin = res/rootN
@@ -274,7 +276,7 @@ def MakePlots(trueXY, mlXY, puppiXY, path_out):
     fig2.text(0, 1.03, r'$\sigma_{PUPPI} - \sigma_{ML}=\sigma_{DIF}$;  $Mean(\sigma_{DIF})=$'+f'{round(averagePt_Res_difference,3)}', fontsize=19)
 
     fig1.savefig(f"{path_out}XY_resolution_plots.png", bbox_inches="tight")
-    fig2.savefig(f"{path_out}pt_resolution_plots.png", bbox_inches="tight")
+    fig2.savefig(f"{path_out}pt_resolution_plots.png", bbox_inches="tight")'''
 
 
 def Make1DHists(truth, ML, PUPPI, xmin=0, xmax=400, nbins=100, density=False, xname="pt [GeV]", yname="A.U.", outputname="1ddistribution.png"):

@@ -57,9 +57,9 @@ def get_callbacks(path_out, sample_size, batch_size):
 
 def test(Yr_test, predict_test, PUPPI_pt, path_out):
 
-    MakePlots(Yr_test, predict_test, PUPPI_pt, path_out=path_out)
+    return MakePlots(Yr_test, predict_test, PUPPI_pt, path_out=path_out)
 
-    Yr_test = convertXY2PtPhi(Yr_test)
+    '''Yr_test = convertXY2PtPhi(Yr_test)
     predict_test = convertXY2PtPhi(predict_test)
     PUPPI_pt = convertXY2PtPhi(PUPPI_pt)
 
@@ -70,7 +70,7 @@ def test(Yr_test, predict_test, PUPPI_pt, path_out):
     MET_binned_predict_mean_opaque(predict_test[:, 0], PUPPI_pt[:, 0], Yr_test[:, 0], 20, 0, 500, 0, '.', name=''+path_out+'PrVSGen.png')
 
     Phi_abs_error_opaque(PUPPI_pt[:, 1], predict_test[:, 1], Yr_test[:, 1], name=path_out+'Phi_abs_err')
-    Pt_abs_error_opaque(PUPPI_pt[:, 0], predict_test[:, 0], Yr_test[:, 0], name=path_out+'Pt_abs_error')
+    Pt_abs_error_opaque(PUPPI_pt[:, 0], predict_test[:, 0], Yr_test[:, 0], name=path_out+'Pt_abs_error')'''
 
 
 def train_dataGenerator(args):
@@ -199,113 +199,121 @@ def train_loadAllData(args):
 
     # Read inputs
     # convert root files to h5 and store in same location
-    h5files = []
-    for ifile in glob(os.path.join(f'{inputPath}', '*.root')):
-        h5file_path = ifile.replace('.root', '.h5')
-        if not os.path.isfile(h5file_path):
-            os.system(f'python convertNanoToHDF5_L1triggerToDeepMET.py -i {ifile} -o {h5file_path}')
-        h5files.append(h5file_path)
+    sigma_dif=[]
+    nEvents=[]
+    for i in range(7):
+        h5files = []
+        for j,ifile in enumerate(glob(os.path.join(f'{inputPath}', '*.root'))):
+            if i==j:
+                break
+            h5file_path = ifile.replace('.root', '.h5')
+            if not os.path.isfile(h5file_path):
+                os.system(f'python convertNanoToHDF5_L1triggerToDeepMET.py -i {ifile} -o {h5file_path}')
+            h5files.append(h5file_path)
 
-    # It may be desireable to set specific files as the train, test, valid data sets
-    # For now I keep train.py used: selection from a list of indicies
+        # It may be desireable to set specific files as the train, test, valid data sets
+        # For now I keep train.py used: selection from a list of indicies
 
-    Xorg, Y = read_input(h5files)
-    Y = Y / -normFac
+        Xorg, Y = read_input(h5files)
+        Y = Y / -normFac
 
-    Xi, Xp, Xc1, Xc2 = preProcessing(Xorg, normFac)
-    Xc = [Xc1, Xc2]
+        Xi, Xp, Xc1, Xc2 = preProcessing(Xorg, normFac)
+        Xc = [Xc1, Xc2]
 
-    emb_input_dim = {
-        i: int(np.max(Xc[i][0:1000])) + 1 for i in range(n_features_pf_cat)
-    }
+        emb_input_dim = {
+            i: int(np.max(Xc[i][0:1000])) + 1 for i in range(n_features_pf_cat)
+        }
 
-    # Prepare training/val data
-    Yr = Y
-    Xr = [Xi, Xp] + Xc
+        # Prepare training/val data
+        Yr = Y
+        Xr = [Xi, Xp] + Xc
 
-    indices = np.array([i for i in range(len(Yr))])
-    indices_train, indices_test = train_test_split(indices, test_size=1./7., random_state=7)
-    indices_train, indices_valid = train_test_split(indices_train, test_size=1./6., random_state=7)
-    # roughly the same split as the data generator workflow (train:valid:test=5:1:1)
+        indices = np.array([i for i in range(len(Yr))])
+        indices_train, indices_test = train_test_split(indices, test_size=1./7., random_state=7)
+        indices_train, indices_valid = train_test_split(indices_train, test_size=1./6., random_state=7)
+        # roughly the same split as the data generator workflow (train:valid:test=5:1:1)
 
-    Xr_train = [x[indices_train] for x in Xr]
-    Xr_test = [x[indices_test] for x in Xr]
-    Xr_valid = [x[indices_valid] for x in Xr]
-    Yr_train = Yr[indices_train]
-    Yr_test = Yr[indices_test]
-    Yr_valid = Yr[indices_valid]
+        Xr_train = [x[indices_train] for x in Xr]
+        Xr_test = [x[indices_test] for x in Xr]
+        Xr_valid = [x[indices_valid] for x in Xr]
+        Yr_train = Yr[indices_train]
+        Yr_test = Yr[indices_test]
+        Yr_valid = Yr[indices_valid]
 
-    # Load training model
-    if quantized is None:
-        keras_model = dense_embedding(n_features=n_features_pf,
-                                      emb_out_dim=2,
-                                      n_features_cat=n_features_pf_cat,
-                                      activation='tanh',
-                                      embedding_input_dim=emb_input_dim,
-                                      number_of_pupcandis=maxNPF,
-                                      t_mode=t_mode,
-                                      with_bias=False,
-                                      units=units)
-    else:
-        logit_total_bits = int(quantized[0])
-        logit_int_bits = int(quantized[1])
-        activation_total_bits = int(quantized[0])
-        activation_int_bits = int(quantized[1])
+        # Load training model
+        if quantized is None:
+            keras_model = dense_embedding(n_features=n_features_pf,
+                                          emb_out_dim=2,
+                                          n_features_cat=n_features_pf_cat,
+                                          activation='tanh',
+                                          embedding_input_dim=emb_input_dim,
+                                          number_of_pupcandis=maxNPF,
+                                          t_mode=t_mode,
+                                          with_bias=False,
+                                          units=units)
+        else:
+            logit_total_bits = int(quantized[0])
+            logit_int_bits = int(quantized[1])
+            activation_total_bits = int(quantized[0])
+            activation_int_bits = int(quantized[1])
 
-        keras_model = dense_embedding_quantized(n_features=n_features_pf,
-                                                emb_out_dim=2,
-                                                n_features_cat=n_features_pf_cat,
-                                                activation_quantizer='quantized_relu',
-                                                embedding_input_dim=emb_input_dim,
-                                                number_of_pupcandis=maxNPF,
-                                                t_mode=t_mode,
-                                                with_bias=False,
+            keras_model = dense_embedding_quantized(n_features=n_features_pf,
+                                                    emb_out_dim=2,
+                                                    n_features_cat=n_features_pf_cat,
+                                                    activation_quantizer='quantized_relu',
+                                                    embedding_input_dim=emb_input_dim,
+                                                    number_of_pupcandis=maxNPF,
+                                                    t_mode=t_mode,
+                                                    with_bias=False,
 
-                                                logit_quantizer='quantized_bits',
-                                                logit_total_bits=logit_total_bits,
-                                                logit_int_bits=logit_int_bits,
-                                                activation_total_bits=activation_total_bits,
-                                                activation_int_bits=activation_int_bits,
-                                                alpha=1,
-                                                use_stochastic_rounding=False,
-                                                units=units)
+                                                    logit_quantizer='quantized_bits',
+                                                    logit_total_bits=logit_total_bits,
+                                                    logit_int_bits=logit_int_bits,
+                                                    activation_total_bits=activation_total_bits,
+                                                    activation_int_bits=activation_int_bits,
+                                                    alpha=1,
+                                                    use_stochastic_rounding=False,
+                                                    units=units)
 
-    # Check which model will be used (0 for L1MET Model, 1 for DeepMET Model)
-    if t_mode == 0:
-        keras_model.compile(optimizer='adam', loss=custom_loss, metrics=['mean_absolute_error', 'mean_squared_error'])
-        verbose = 1
-    elif t_mode == 1:
-        optimizer = optimizers.Adam(lr=1., clipnorm=1.)
-        keras_model.compile(loss=custom_loss, optimizer=optimizer,
-                            metrics=['mean_absolute_error', 'mean_squared_error'])
-        verbose = 1
+        # Check which model will be used (0 for L1MET Model, 1 for DeepMET Model)
+        if t_mode == 0:
+            keras_model.compile(optimizer='adam', loss=custom_loss, metrics=['mean_absolute_error', 'mean_squared_error'])
+            verbose = 1
+        elif t_mode == 1:
+            optimizer = optimizers.Adam(lr=1., clipnorm=1.)
+            keras_model.compile(loss=custom_loss, optimizer=optimizer,
+                                metrics=['mean_absolute_error', 'mean_squared_error'])
+            verbose = 1
 
-    # Run training
-    print(keras_model.summary())
+        # Run training
+        print(keras_model.summary())
 
-    start_time = time.time()  # check start time
-    history = keras_model.fit(Xr_train,
-                              Yr_train,
-                              epochs=epochs,
-                              batch_size=batch_size,
-                              verbose=verbose,  # switch to 1 for more verbosity
-                              validation_data=(Xr_valid, Yr_valid),
-                              callbacks=get_callbacks(path_out, len(Yr_train), batch_size))
+        start_time = time.time()  # check start time
+        history = keras_model.fit(Xr_train,
+                                  Yr_train,
+                                  epochs=epochs,
+                                  batch_size=batch_size,
+                                  verbose=verbose,  # switch to 1 for more verbosity
+                                  validation_data=(Xr_valid, Yr_valid),
+                                  callbacks=get_callbacks(path_out, len(Yr_train), batch_size))
 
-    end_time = time.time()  # check end time
+        end_time = time.time()  # check end time
 
-    predict_test = keras_model.predict(Xr_test) * normFac
-    PUPPI_pt = normFac * np.sum(Xr_test[1], axis=1)
-    Yr_test = normFac * Yr_test
+        predict_test = keras_model.predict(Xr_test) * normFac
+        PUPPI_pt = normFac * np.sum(Xr_test[1], axis=1)
+        Yr_test = normFac * Yr_test
 
-    test(Yr_test, predict_test, PUPPI_pt, path_out)
+        sigma_dif.append(test(Yr_test, predict_test, PUPPI_pt, path_out))
+        nEvents.append(len(indices_train))
+    
+        '''fi = open("{}time.txt".format(path_out), 'w')
 
-    fi = open("{}time.txt".format(path_out), 'w')
+        fi.write("Working Time (s) : {}".format(end_time - start_time))
+        fi.write("Working Time (m) : {}".format((end_time - start_time)/60.))
 
-    fi.write("Working Time (s) : {}".format(end_time - start_time))
-    fi.write("Working Time (m) : {}".format((end_time - start_time)/60.))
-
-    fi.close()
+        fi.close()'''
+    print(sigma_dif)
+    print(nEvents)
 
 
 def main():
